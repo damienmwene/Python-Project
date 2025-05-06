@@ -30,7 +30,7 @@ jobs:
         run: timeout 70s python uptime_monitor.py || echo "Script timed out as expected."
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.28.0
         with:
           image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
           format: 'table'
