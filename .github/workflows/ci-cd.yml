@@ -22,7 +22,7 @@ jobs:
         python-version: '3.10'
 
     - name: Install dependencies
-      run: pip install -r requirements.txt
+      run: pip install -r uptime_monitor/requirements.txt
 
     - name: Run basic Python test
       run: |
@@ -33,7 +33,8 @@ jobs:
       with:
         scan-type: fs
         scan-ref: '.'
-        exit-code: '0'
+        severity: 'CRITICAL,HIGH'
+        exit-code: '1'
         format: 'table'
 
     - name: Log in to DockerHub
