@@ -41,10 +41,11 @@ jobs:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@v0.28.0
         with:
-          image-ref: '${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.IMAGE_NAME }}:${{ github.sha }}'
-          format: 'table'
-          exit-code: '1'
+          scan-type: fs
+          scan-ref: '.'
           severity: 'CRITICAL,HIGH'
+          exit-code: '1'
+          format: 'table'
 
       - name: Push Docker image
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
