@@ -1,0 +1,20 @@
+{
+  "family": "uptime-monitor-task",
+  "networkMode": "bridge",
+  "containerDefinitions": [
+    {
+      "name": "uptime-container",
+      "image": "IMAGE_URI_PLACEHOLDER",
+      "essential": true,
+      "memory": 128,
+      "cpu": 64,
+      "environment": [
+        {
+          "name": "SLACK_WEBHOOK_URL",
+          "value": "SLACK_WEBHOOK_PLACEHOLDER"
+        }
+      ]
+    }
+  ],
+  "requiresCompatibilities": ["EC2"]
+}
