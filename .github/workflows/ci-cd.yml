@@ -1,4 +1,4 @@
-name: Scan, Test, Build, Push & Deploy
+name: CI/CD to ECS
 
 on:
   push:
@@ -6,69 +6,70 @@ on:
 
 env:
   IMAGE_TAG: ${{ github.sha }}
-  IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
 
 jobs:
   deploy:
+    name: Scan, Test, Build, Push & Deploy
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout repo
+      uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+    - name: Install dependencies
+      run: pip install -r requirements.txt
 
-      - name: Run test
-        run: timeout 70s python uptime_monitor.py || echo "Script timed out as expected."
+    - name: Run basic Python test
+      run: |
+        python -c "import uptime_monitor; print('✅ Script loads successfully')"
 
-      - name: Log in to DockerHub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Run Trivy scan
+      uses: aquasecurity/trivy-action@0.28.0
+      with:
+        scan-type: fs
+        scan-ref: '.'
+        severity: 'CRITICAL,HIGH'
+        exit-code: '1'
+        format: 'table'
 
-      - name: Build Docker image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.IMAGE_NAME }}:${{ env.IMAGE_TAG }} .
+    - name: Log in to DockerHub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@v0.28.0
-        with:
-          scan-type: fs
-          scan-ref: '.'
-          severity: 'CRITICAL,HIGH'
-          exit-code: '1'
-          format: 'table'
+    - name: Build Docker image
+      run: docker build -t ${{ secrets.IMAGE_NAME }}:$IMAGE_TAG .
 
-      - name: Push Docker image
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+    - name: Push Docker image to DockerHub
+      run: docker push ${{ secrets.IMAGE_NAME }}:$IMAGE_TAG
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Render new ECS task definition
-        id: render-task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ${{ secrets.ECS_TASK_DEFINITION }}
-          container-name: ${{ secrets.CONTAINER_NAME }}
-          image: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+    - name: Create new ECS task definition revision
+      id: task-definition
+      uses: aws-actions/amazon-ecs-render-task-definition@v1
+      with:
+        task-definition: ecs-task-def.json
+        container-name: ${{ secrets.CONTAINER_NAME }}
+        image: ${{ secrets.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+        environment-variables: |
+         SLACK_WEBHOOK_URL=${{ secrets.SLACK_WEBHOOK_URL }}
 
-      - name: Deploy to ECS
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.render-task-def.outputs.task-definition }}
-          service: ${{ secrets.ECS_SERVICE }}
-          cluster: ${{ secrets.ECS_CLUSTER }}
-          wait-for-service-stability: true
+    - name: Deploy to ECS
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+      with:
+        cluster: ${{ secrets.ECS_CLUSTER }}
+        service: ${{ secrets.ECS_SERVICE }}
+        task-definition: ${{ steps.task-def.outputs.task-definition-arn }}
+        wait-for-service-stability: true
