@@ -29,7 +29,7 @@ jobs:
         python -c "import uptime_monitor; print('✅ Script loads successfully')"
 
     - name: Run Trivy scan
-      uses: aquasecurity/trivy-action@v0.11.2
+      uses: aquasecurity/trivy-action@latest
       with:
         scan-type: fs
         scan-ref: '.'
