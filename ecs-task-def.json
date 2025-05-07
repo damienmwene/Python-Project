@@ -1,6 +1,6 @@
 {
   "family": "uptime-monitor-task",
-  "networkMode": "bridge",
+  "networkMode": "awsvpc",
   "containerDefinitions": [
     {
       "name": "uptime-container",
