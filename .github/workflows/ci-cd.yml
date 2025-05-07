@@ -57,7 +57,7 @@ jobs:
         aws-region: ${{ secrets.AWS_REGION }}
 
     - name: Create new ECS task definition revision
-      id: task-definition
+      id: render-task-def
       uses: aws-actions/amazon-ecs-render-task-definition@v1
       with:
         task-definition: ecs-task-def.json
@@ -71,5 +71,5 @@ jobs:
       with:
         cluster: ${{ secrets.ECS_CLUSTER }}
         service: ${{ secrets.ECS_SERVICE }}
-        task-definition: ${{ steps.task-def.outputs.task-definition-arn }}
+        task-definition: ${{ steps.render-task-def.outputs.task-definition }}
         wait-for-service-stability: true
