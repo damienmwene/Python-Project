@@ -17,4 +17,14 @@
     }
   ],
   "requiresCompatibilities": ["EC2"]
+
+
+  "logConfiguration": {
+    "logDriver": "awslogs",
+    "options": {
+      "awslogs-group": "/ecs/uptime-monitor",
+      "awslogs-region": "eu-north-1",
+      "awslogs-stream-prefix": "ecs"
+    }
+  }
 }
