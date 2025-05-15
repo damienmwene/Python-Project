@@ -13,18 +13,16 @@
           "name": "SLACK_WEBHOOK_URL",
           "value": "SLACK_WEBHOOK_PLACEHOLDER"
         }
-      ]
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/uptime-monitor-task",
+          "awslogs-region": "eu-north-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
     }
   ],
   "requiresCompatibilities": ["EC2"]
-
-
-  "logConfiguration": {
-    "logDriver": "awslogs",
-    "options": {
-      "awslogs-group": "/ecs/uptime-monitor",
-      "awslogs-region": "eu-north-1",
-      "awslogs-stream-prefix": "ecs"
-    }
-  }
 }
