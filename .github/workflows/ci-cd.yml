@@ -73,4 +73,11 @@ jobs:
         service: ${{ secrets.ECS_SERVICE }}
         task-definition: ${{ steps.render-task-def.outputs.task-definition }}
         wait-for-service-stability: true
-        network-configuration: '{"awsvpcConfiguration":{"subnets":["subnet-0f0b71e09aa9e4604"],"securityGroups":["sg-0287dd1ecded02652"],"assignPublicIp":"ENABLED"}}'
+        network-configuration: >
+          {
+            "awsvpcConfiguration": {
+              "subnets": ["subnet-0f0b71e09aa9e4604"],
+              "securityGroups": ["sg-0287dd1ecded02652"],
+              "assignPublicIp": "ENABLED"
+            }
+          }
