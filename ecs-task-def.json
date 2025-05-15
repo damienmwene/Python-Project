@@ -1,6 +1,6 @@
 {
   "family": "uptime-monitor-task",
-  "networkMode": "awsvpc",
+  "networkMode": "bridge",
   "containerDefinitions": [
     {
       "name": "uptime-container",
@@ -13,7 +13,15 @@
           "name": "SLACK_WEBHOOK_URL",
           "value": "SLACK_WEBHOOK_PLACEHOLDER"
         }
-      ]
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/uptime-monitor-task",
+          "awslogs-region": "eu-north-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
     }
   ],
   "requiresCompatibilities": ["EC2"]
