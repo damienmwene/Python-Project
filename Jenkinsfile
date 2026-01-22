@@ -4,12 +4,6 @@ pipeline {
 
   stages {
 
-    stage('Checkout Source Code') {
-      steps {
-        git 'https://github.com/damienmwene/Python-Project.git'
-      }
-    }
-
     stage('SonarQube Code Analysis') {
       steps {
         withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
