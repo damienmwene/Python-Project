@@ -9,7 +9,7 @@ pipeline {
         withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
           withEnv(["SCANNER_HOME=${tool 'sonar-scanner'}"]) { 
           sh """
-          $SCANNER_HOME/bin/ sonar-scanner \
+          $SCANNER_HOME/bin/sonar-scanner \
             -Dsonar.projectKey=uptime_monitor \
             -Dsonar.sources=. \
             -Dsonar.host.url=${SONAR_HOST_URL} \
