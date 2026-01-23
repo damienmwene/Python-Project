@@ -6,8 +6,9 @@ pipeline {
 
     stage('SonarQube Code Analysis') {
       steps {
+        withSonarQubeEnv('SonarQube') {
         withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
-          withEnv(["SCANNER_HOME=${tool 'sonar-scanner'}"]) { 
+          withEnv(["SCANNER_HOME=${tool 'sonar-scanner'}"]) {
           sh """
           $SCANNER_HOME/bin/sonar-scanner \
             -Dsonar.projectKey=uptime_monitor \
@@ -16,6 +17,7 @@ pipeline {
             -Dsonar.token=${SONAR_TOKEN}
           """
           }
+        }
         }
       }
     }
