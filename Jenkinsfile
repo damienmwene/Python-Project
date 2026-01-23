@@ -1,5 +1,4 @@
 pipeline {
-
   agent any
 
   stages {
@@ -34,13 +33,10 @@ pipeline {
 
     stage('Docker Push') {
       steps {
-        withCredentials([usernamePassword(
-          credentialsId: 'dockerhub-creds',
-        )]) {
-          sh """
-          docker login -u --password-stdin
-          docker push ${IMAGE_NAME}:v2
-          """
+        script {
+          docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-creds') {
+            docker.image("mwene/uptime_monitor:v2").push()
+          }
         }
       }
     }
