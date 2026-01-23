@@ -7,17 +7,13 @@ pipeline {
     stage('SonarQube Code Analysis') {
       steps {
         withSonarQubeEnv('SonarQube') {
-        withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
           withEnv(["SCANNER_HOME=${tool 'sonar-scanner'}"]) {
-          sh """
-          $SCANNER_HOME/bin/sonar-scanner \
-            -Dsonar.projectKey=uptime_monitor \
-            -Dsonar.sources=. \
-            -Dsonar.host.url=${SONAR_HOST_URL} \
-            -Dsonar.token=${SONAR_TOKEN}
-          """
+            sh '''
+              $SCANNER_HOME/bin/sonar-scanner \
+                -Dsonar.projectKey=uptime_monitor \
+                -Dsonar.sources=.
+            '''
           }
-        }
         }
       }
     }
