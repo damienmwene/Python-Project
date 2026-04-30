@@ -5,17 +5,20 @@ pipeline {
   stages {
 
     stage('SonarQube Code Analysis') {
-      steps {
-        withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
-          sh """
-          sonar-scanner \
-            -Dsonar.projectKey=uptime_monitor \
-            -Dsonar.sources=. \
-            -Dsonar.host.url=${SONAR_HOST_URL} \
-            -Dsonar.token=${SONAR_TOKEN}
-          """
+        steps {
+            script {
+                def scannerHome = tool 'sonar-scanner'
+                withSonarQubeEnv('SonarQube') {
+                    sh """
+                    ${scannerHome}/bin/sonar-scanner \
+                    -Dsonar.projectKey=uptime_monitor \
+                    -Dsonar.sources=. \
+                    -Dsonar.host.url=http://localhost:9000 \
+                    -Dsonar.login=${SONAR_TOKEN}
+                    """
+                }
+            }
         }
-      }
     }
 
     stage('Quality Gate') {
