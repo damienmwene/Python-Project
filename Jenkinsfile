@@ -1,29 +1,41 @@
 pipeline {
-
   agent any
+
+  environment {
+    IMAGE_NAME = "mwene/uptime_monitor"
+  }
 
   stages {
 
-    stage('SonarQube Code Analysis') {
-        steps {
-            script {
-                def scannerHome = tool 'sonar-scanner'
-                withSonarQubeEnv('SonarQube') {
-                    sh """
-                    ${scannerHome}/bin/sonar-scanner \
-                    -Dsonar.projectKey=uptime_monitor \
-                    -Dsonar.sources=. \
-                    -Dsonar.host.url=http://localhost:9000 \
-                    -Dsonar.login=${SONAR_TOKEN}
-                    """
-                }
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
+    }
+
+    stage('SonarQube Analysis') {
+      steps {
+        script {
+          def scannerHome = tool 'sonar-scanner'
+
+          withSonarQubeEnv('SonarQube') {
+            withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+
+              sh """
+              ${scannerHome}/bin/sonar-scanner \
+              -Dsonar.projectKey=uptime_monitor \
+              -Dsonar.sources=. \
+              -Dsonar.token=$SONAR_TOKEN
+              """
             }
+          }
         }
+      }
     }
 
     stage('Quality Gate') {
       steps {
-        timeout(time: 5, unit: 'MINUTES') {
+        timeout(time: 10, unit: 'MINUTES') {
           waitForQualityGate abortPipeline: true
         }
       }
@@ -31,7 +43,7 @@ pipeline {
 
     stage('Docker Build') {
       steps {
-        sh "docker build -t ${IMAGE_NAME}:v2 ."
+        sh "docker build -t ${IMAGE_NAME}:v1 ."
       }
     }
 
@@ -39,10 +51,12 @@ pipeline {
       steps {
         withCredentials([usernamePassword(
           credentialsId: 'dockerhub-creds',
+          usernameVariable: 'DOCKER_USER',
+          passwordVariable: 'DOCKER_PASS'
         )]) {
           sh """
-          docker login -u --password-stdin
-          docker push ${IMAGE_NAME}:v2
+          echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+          docker push ${IMAGE_NAME}:v1
           """
         }
       }
