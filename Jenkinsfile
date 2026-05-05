@@ -1,10 +1,6 @@
 pipeline {
   agent any
 
-  environment {
-    IMAGE_NAME = "mwene/uptime_monitor"
-  }
-
   stages {
 
     stage('Checkout') {
