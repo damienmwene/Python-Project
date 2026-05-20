@@ -15,11 +15,11 @@ pipeline {
           def scannerHome = tool 'sonar-scanner'
 
           withSonarQubeEnv('SonarQube') {
-            withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+            withCredentials([string(credentialsId: 'jenkins-sonar-token-2', variable: 'SONAR_TOKEN')]) {
 
               sh """
               ${scannerHome}/bin/sonar-scanner \
-              -Dsonar.projectKey=uptime_monitor \
+              -Dsonar.projectKey=uptime_monitor2 \
               -Dsonar.sources=. \
               -Dsonar.token=$SONAR_TOKEN
               """
@@ -39,7 +39,7 @@ pipeline {
 
     stage('Docker Build') {
       steps {
-        sh "docker build -t ${IMAGE_NAME}:v1 ."
+        sh "docker build -t ${IMAGE_NAME}:v2 ."
       }
     }
 
