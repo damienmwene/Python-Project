@@ -1,16 +1,16 @@
-name: CI/CD to ECS
+#name: CI/CD to ECS
 
 on:
   push:
-    branches: [main]
+    #branches: [main]
 
 env:
   IMAGE_TAG: ${{ github.sha }}
 
-jobs:
-  deploy:
-    name: Scan, Test, Build, Push & Deploy
-    runs-on: ubuntu-latest
+#jobs:
+  #deploy:
+    #name: Scan, Test, Build, Push & Deploy
+    #runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repo

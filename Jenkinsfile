@@ -3,15 +3,27 @@ pipeline {
 
   stages {
 
-    stage('SonarQube Code Analysis') {
+    stage('Checkout') {
       steps {
-        withSonarQubeEnv('SonarQube') {
-          withEnv(["SCANNER_HOME=${tool 'sonar-scanner'}"]) {
-            sh '''
-              $SCANNER_HOME/bin/sonar-scanner \
-                -Dsonar.projectKey=uptime_monitor \
-                -Dsonar.sources=.
-            '''
+        checkout scm
+      }
+    }
+
+    stage('SonarQube Analysis') {
+      steps {
+        script {
+          def scannerHome = tool 'sonar-scanner'
+
+          withSonarQubeEnv('SonarQube') {
+            withCredentials([string(credentialsId: 'jenkins-sonar-token-2', variable: 'SONAR_TOKEN')]) {
+
+              sh """
+              ${scannerHome}/bin/sonar-scanner \
+              -Dsonar.projectKey=uptime_monitor2 \
+              -Dsonar.sources=. \
+              -Dsonar.token=$SONAR_TOKEN
+              """
+            }
           }
         }
       }
@@ -19,7 +31,7 @@ pipeline {
 
     stage('Quality Gate') {
       steps {
-        timeout(time: 5, unit: 'MINUTES') {
+        timeout(time: 10, unit: 'MINUTES') {
           waitForQualityGate abortPipeline: true
         }
       }
@@ -33,10 +45,15 @@ pipeline {
 
     stage('Docker Push') {
       steps {
-        script {
-          docker.withRegistry('https://registry.hub.docker.com', 'dockerhub-creds') {
-            docker.image("mwene/uptime_monitor:v2").push()
-          }
+        withCredentials([usernamePassword(
+          credentialsId: 'dockerhub-creds',
+          usernameVariable: 'DOCKER_USER',
+          passwordVariable: 'DOCKER_PASS'
+        )]) {
+          sh """
+          echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+          docker push ${IMAGE_NAME}:v1
+          """
         }
       }
     }
