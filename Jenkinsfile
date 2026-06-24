@@ -57,5 +57,16 @@ pipeline {
         }
       }
     }
+
+    stage('Update Helm Chart') {
+      steps {
+        sh '''
+        sed -i "s/tag:.*/tag: \\"${BUILD_NUMBER}\\"/" uptime-monitor-chart/values.yaml
+        git add uptime-monitor-chart/values.yaml
+        git commit -m "Update image tag to ${BUILD_NUMBER}"
+        git push
+        '''
+      }
+    }
   }
 }
