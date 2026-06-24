@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uptime Monitor Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <nav>
+        <div class="logo">
+            <a href="/">
+                <img src="{{ url_for('static', filename='images/uptime-monitor-logo.png') }}" alt="Uptime Monitor" class="nav-logo-image">
+            </a>
+        </div>
+
+        <ul>
+            <li>Dashboard</li>
+            <li>Monitors</li>
+            <li>Status</li>
+            <li>
+                <a href="/about" style="color:white;text-decoration:none;">
+                    About
+                </a>
+            </li>
+        </ul>
+
+        <div class="status">
+            {% if down_count == 0 %}
+                <span class="status-dot up" aria-hidden="true"></span>
+                <span class="status-text">All Systems Operational</span>
+            {% else %}
+                <span class="status-dot down" aria-hidden="true"></span>
+                <span class="status-text">{{ down_count }} Down</span>
+            {% endif %}
+        </div>
+    </nav>
+
+    <section class="hero">
+
+        <div class="hero-left">
+
+            <div class="hero-logo">
+                <div class="hero-logo-icon">⏱️</div>
+                <div>
+                    <h2>Uptime Monitor</h2>
+                    <p>Always-on status tracking for your services.</p>
+                </div>
+            </div>
+
+            <h1>
+                Welcome to <span>Uptime Monitor</span>
+            </h1>
+
+            <p>
+                Real-time monitoring of your services and API endpoints.
+            </p>
+
+            <div class="metrics">
+
+                <div class="metric">
+                    <h3>Monitored Endpoints</h3>
+                    <h2>{{ monitors|length }}</h2>
+                </div>
+
+                <div class="metric">
+                    <h3>Total Checks</h3>
+                    <h2>{{ monitors|length }}</h2>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="hero-right">
+            🖥️🛡️
+        </div>
+
+    </section>
+
+    <section class="cards">
+
+        <div class="card green">
+            <h3>UP</h3>
+            <h1>{{ up_count }}</h1>
+            <p>Healthy Services</p>
+        </div>
+
+        <div class="card red">
+            <h3>DOWN</h3>
+            <h1>{{ down_count }}</h1>
+            <p>Unavailable Services</p>
+        </div>
+
+        <div class="card blue">
+            <h3>Environment</h3>
+            <h1>K8s</h1>
+            <p>ArgoCD Managed</p>
+        </div>
+
+        <div class="card purple">
+            <h3>CI/CD</h3>
+            <h1>ACTIVE</h1>
+            <p>Jenkins + GitOps</p>
+        </div>
+
+    </section>
+
+    <section class="table-container">
+
+        <div class="table-header">
+            <h2>Monitored Endpoints</h2>
+            <button id="add-monitor-btn">Add Monitor</button>
+        </div>
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>URL</th>
+                    <th>Status</th>
+                    <th>Response Time</th>
+                    <th>Last Check</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for monitor in monitors %}
+                <tr>
+
+                    <td>{{ monitor.url }}</td>
+
+                    <td>
+                        {% if monitor.status == "UP" %}
+                            <span class="badge up">UP</span>
+                        {% else %}
+                            <span class="badge down">DOWN</span>
+                        {% endif %}
+                    </td>
+
+                    <td>{{ monitor.response_time }} ms</td>
+
+                    <td>Latest Check</td>
+
+                    <td>
+                        <button class="btn-remove" data-url="{{ monitor.url }}">Remove</button>
+                    </td>
+
+                </tr>
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </section>
+
+    <script>
+    document.getElementById('add-monitor-btn').addEventListener('click', async function(){
+        const url = prompt('Enter a full URL to monitor (e.g. https://example.com)');
+        if (!url) return;
+
+        try {
+            const res = await fetch('/add-monitor', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ url })
+            });
+
+            const data = await res.json();
+            if (res.ok && data.ok) {
+                // reload to show updated monitors
+                window.location.reload();
+            } else {
+                alert('Failed to add monitor: ' + (data.error || JSON.stringify(data)));
+            }
+        } catch (err) {
+            alert('Error adding monitor: ' + err.message);
+        }
+    });
+
+    // Attach remove handlers
+    document.querySelectorAll('.btn-remove').forEach(btn => {
+        btn.addEventListener('click', async function(){
+            const url = btn.getAttribute('data-url');
+            if (!confirm('Remove monitor for ' + url + '?')) return;
+
+            try {
+                const res = await fetch('/remove-monitor', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url })
+                });
+
+                const data = await res.json();
+                if (res.ok && data.ok) {
+                    window.location.reload();
+                } else {
+                    alert('Failed to remove monitor: ' + (data.error || JSON.stringify(data)));
+                }
+            } catch (err) {
+                alert('Error removing monitor: ' + err.message);
+            }
+        });
+    });
+    </script>
+
+    <footer>
+        Built with ❤️ using Python, Jenkins, Docker, Helm, ArgoCD and Kubernetes
+    </footer>
+
+</body>
+</html>

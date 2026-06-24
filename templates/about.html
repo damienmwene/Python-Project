@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Author</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<nav>
+    <div class="logo">
+        <a href="/" aria-label="Uptime Monitor">
+            <img src="{{ url_for('static', filename='images/uptime-monitor-logo.png') }}" alt="Uptime Monitor" class="nav-logo-image">
+        </a>
+    </div>
+
+    <ul>
+        <li>
+            <a href="/" style="color:white;text-decoration:none;">
+                Dashboard
+            </a>
+        </li>
+    </ul>
+
+    <div class="status">
+        {% if down_count == 0 %}
+            <span class="status-dot up" aria-hidden="true"></span>
+            <span class="status-text">All Systems Operational</span>
+        {% else %}
+            <span class="status-dot down" aria-hidden="true"></span>
+            <span class="status-text">{{ down_count }} Down</span>
+        {% endif %}
+    </div>
+</nav>
+
+<div class="about-container">
+
+    <div class="profile-card">
+
+        <img
+            src="{{ url_for('static', filename='images/passport-size.jpeg') }}"
+            alt="Author"
+            class="profile-image"
+        >
+
+        <h1>MWENE DAMIEN NGANDEMBOU</h1>
+
+        <h3>| DevOps Engineer | Cloud Engineer | Instructor |</h3>
+
+        <p>
+            Passionate engineer specializing in cloud infrastructure automation, 
+            container orchestration, and modern CI/CD practices. Committed to 
+            building scalable, reliable systems.
+        </p>
+
+    </div>
+
+    <div class="details-card">
+
+        <h2>Professional Profile</h2>
+
+        <div class="info-row">
+            <strong>Name:</strong>
+            <span>MWENE DAMIEN NGANDEMBOU</span>
+        </div>
+
+        <div class="info-row">
+            <strong>Location:</strong>
+            <span>Buea, Cameroon</span>
+        </div>
+
+        <div class="info-row">
+            <strong>Role:</strong>
+            <span>|| DevOps Engineer | Cloud Engineer | Instructor ||</span>
+        </div>
+
+        <div class="info-row">
+            <strong>Specialization:</strong>
+            <span>AWS • Kubernetes • Terraform • CI/CD • GitOps • Docker</span>
+        </div>
+
+        <div class="info-row">
+            <strong>Project:</strong>
+            <span>Uptime Monitor (GitOps-Grade Project)</span>
+        </div>
+
+        <div class="info-row">
+            <strong>Email:</strong>
+            <span><a href="mailto:damienmwene97@gmail.com">damienmwene97@gmail.com</a></span>
+        </div>
+
+        <div class="info-row">
+            <strong>Phone:</strong>
+            <span><a href="tel:+237678455620">+237 678 455 620</a></span>
+        </div>
+
+        <div class="info-row">
+            <strong>LinkedIn:</strong>
+            <span><a href="https://linkedin.com/in/mwene-damien-ngandembou-967404189" target="_blank">mwene-damien-ngandembou-967404189</a></span>
+        </div>
+
+    </div>
+
+</div>
+
+<footer>
+    Built with Python, Flask, Jenkins, SonarQube, Docker,
+    Helm, ArgoCD and Kubernetes
+</footer>
+
+</body>
+</html>

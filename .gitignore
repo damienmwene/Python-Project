@@ -1,0 +1,25 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# SonarQube scanner artifacts
+.scannerwork/
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.*
+
+# Python virtual environments
+venv/
+.venv/
+env/
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
