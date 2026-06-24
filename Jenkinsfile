@@ -19,7 +19,7 @@ pipeline {
 
               sh """
               ${scannerHome}/bin/sonar-scanner \
-              -Dsonar.projectKey=uptime_monitor2 \
+              -Dsonar.projectKey=uptime_monitor \
               -Dsonar.sources=. \
               -Dsonar.token=$SONAR_TOKEN
               """
